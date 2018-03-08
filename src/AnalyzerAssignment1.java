@@ -25,10 +25,24 @@
  * 	https://stackoverflow.com/questions/5603966/how-to-make-filefilter-in-java
  * 	https://www.tutorialspoint.com/java/java_file_class.htm
  * 	https://www.webucator.com/how-to/how-display-the-contents-of-directory-java.cfm
- * 
+ * 	https://www.programcreek.com/2011/11/use-jdt-astparser-to-parse-java-file/
  */
 
 import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+ 
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+
 
 public class AnalyzerAssignment1 {
 
@@ -85,7 +99,8 @@ public class AnalyzerAssignment1 {
 					System.out.format("File name: %s%n", object.getName());
 					//Parse for file
 					//System.out.println("The file content:\n" + readFileToString(filePath));
-					
+					parse(readFileToString(filePath));
+					//readFileToString(filePath);
 				}
 			}
 			
@@ -118,6 +133,35 @@ public class AnalyzerAssignment1 {
 		reader.close();
 		
 		return fileData.toString();
+	}
+	
+	/**
+	 * This method parses the contents of the .java file for declarations
+	 * @param fileContent
+	 */
+	public static void parse(String fileContent) {
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(fileContent.toCharArray());
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		
+		final CompilationUnit compUnit = (CompilationUnit) parser.createAST(null);
+		
+		compUnit.accept(new ASTVisitor() {
+			
+			Set names = new HashSet();
+			
+			public boolean visit(VariableDeclarationFragment node) {
+				SimpleName name = node.getName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				this.names.add(name.getIdentifier());
+				
+				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("----------------------------------------------");
+				return false; // do not continue
+			}
+			
+		});
+		
 	}
 
 }
