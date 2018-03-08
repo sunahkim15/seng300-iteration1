@@ -46,7 +46,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class AnalyzerAssignment1 {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, FileNotFoundException {
 		
 		//Check if the command line arguments include a pathname and java type
 		if (args.length > 1) {
@@ -117,7 +117,7 @@ public class AnalyzerAssignment1 {
 	 * @return - the contents of the file read as String
 	 * @throws IOException - if the file doesn't exist then this will throw an exception
 	 */
-	public static String readFileToString(String filePath) throws IOException {
+	public static String readFileToString(String filePath) throws IOException, FileNotFoundException {
 		StringBuilder fileData = new StringBuilder(1000);
 		BufferedReader reader = new BufferedReader(new FileReader(filePath));
 		
@@ -137,7 +137,7 @@ public class AnalyzerAssignment1 {
 	
 	/**
 	 * This method parses the contents of the .java file for declarations
-	 * @param fileContent
+	 * @param fileContent - content of the .java file as String
 	 */
 	public static void parse(String fileContent) {
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
