@@ -40,18 +40,31 @@ public class AnalyzerAssignment1 {
 		System.out.println("The Java type is " + javaType);
 		
 		//Open the directory specified by the user
-		accessContentsOfADirectory(pathname);
+		File[] directoryContents = accessContentsOfADirectory(pathname);
+		//System.out.println("Content:\n" + directoryContents);
+		//Check if we have a valid directory; if we have null then terminate the program
+		if (directoryContents == null) {
+			System.out.println("Program terminated.");
+			System.exit(0);
+		}
 		
-
+		
+		
+		userInput.close();
 	}
 	
-	public static void accessContentsOfADirectory(String pathname) {
+	/**
+	 * This opens and gets the contents of the directory specified
+	 * @param pathname - the pathname of the directory
+	 * @return - the array of contents of the directory
+	 */
+	public static File[] accessContentsOfADirectory(String pathname) {
 		File directory = new File(pathname);
 		File[] contentsOfDirectory = directory.listFiles();
-		//print the directory contents to the console for checking
-		for (int i = 0; i < contentsOfDirectory.length ; i++) {
-			if (contentsOfDirectory[i] != null) {
-				File object = contentsOfDirectory[i];
+		//check if the Directory exists
+		if (directory.canRead()) {
+			//print the directory contents to the console for checking
+			for (File object : contentsOfDirectory) {
 				if (object.isFile()) {
 					System.out.format("File name: %s%n", object.getName());
 				}
@@ -59,7 +72,11 @@ public class AnalyzerAssignment1 {
 					System.out.format("Directory name: %s%n", object.getName());
 				}
 			}
+		} else {
+			//Otherwise terminate the program and tell the user.
+			System.out.println("The pathname specified is not valid. Try running the code again and enter a valid one.");
 		}
+		return contentsOfDirectory;
 	}
 
 }
