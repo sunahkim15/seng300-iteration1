@@ -23,34 +23,39 @@
  */
 
 import java.io.*;
-import java.util.Scanner;
 
 public class AnalyzerAssignment1 {
 
 	public static void main(String[] args) {
-		Scanner userInput = new Scanner(System.in);
-		//print Welcome message to console to get the input from the user
-		System.out.print("Welcome! The Analyzer is now running, please type in the pathname your are interested in.\nPathname = ");
-		//Get the pathname from the user
-		String pathname = userInput.nextLine();
-		System.out.println("The pathname is: " + pathname);
-		System.out.print("Now type in the fully qualified name of a Java Type.\nType = ");
-		//Get the Java type from the user
-		String javaType = userInput.nextLine();
-		System.out.println("The Java type is " + javaType);
 		
-		//Open the directory specified by the user
-		File[] directoryContents = accessContentsOfADirectory(pathname);
-		//System.out.println("Content:\n" + directoryContents);
-		//Check if we have a valid directory; if we have null then terminate the program
-		if (directoryContents == null) {
-			System.out.println("Program terminated.");
-			System.exit(0);
+		//Check if the command line arguments are > 0
+		if (args.length > 0) {
+			//Get the pathname from the user
+			String pathname = args[0];
+			//Get the Java type from the user
+			String javaType = args[1];
+		
+
+		
+			//print for checking
+			System.out.println("The pathname is: " + pathname);
+			System.out.println("The Java type is " + javaType);
+			
+			//Open the directory specified by the user and get contents
+			File[] directoryContents = accessContentsOfADirectory(pathname);
+			//System.out.println("Content:\n" + directoryContents);
+			//Check if we have a valid directory; if we have null then terminate the program
+			if (directoryContents == null) {
+				System.out.println("Program terminated.");
+				System.exit(0);
+			}
+			
+		
+		
 		}
-		
-		
-		
-		userInput.close();
+		else {
+			System.out.println("There are no pathname and java type input on the command line arguments.");
+		}
 	}
 	
 	/**
@@ -72,6 +77,9 @@ public class AnalyzerAssignment1 {
 					System.out.format("Directory name: %s%n", object.getName());
 				}
 			}
+			
+			
+			
 		} else {
 			//Otherwise terminate the program and tell the user.
 			System.out.println("The pathname specified is not valid. Try running the code again and enter a valid one.");
