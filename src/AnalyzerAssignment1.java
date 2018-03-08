@@ -20,6 +20,12 @@
  * 		<type>. Declarations found: <count>; references found: <count>.
  * 
  * where the <type> and two <count>s are to be replaced with the relevant values.
+ * 
+ * Link Sources:
+ * 	https://stackoverflow.com/questions/5603966/how-to-make-filefilter-in-java
+ * 	https://www.tutorialspoint.com/java/java_file_class.htm
+ * 	https://www.webucator.com/how-to/how-display-the-contents-of-directory-java.cfm
+ * 
  */
 
 import java.io.*;
@@ -28,14 +34,12 @@ public class AnalyzerAssignment1 {
 
 	public static void main(String[] args) {
 		
-		//Check if the command line arguments are > 0
-		if (args.length > 0) {
+		//Check if the command line arguments include a pathname and java type
+		if (args.length > 1) {
 			//Get the pathname from the user
 			String pathname = args[0];
 			//Get the Java type from the user
 			String javaType = args[1];
-		
-
 		
 			//print for checking
 			System.out.println("The pathname is: " + pathname);
@@ -44,6 +48,7 @@ public class AnalyzerAssignment1 {
 			//Open the directory specified by the user and get contents
 			File[] directoryContents = accessContentsOfADirectory(pathname);
 			//System.out.println("Content:\n" + directoryContents);
+			
 			//Check if we have a valid directory; if we have null then terminate the program
 			if (directoryContents == null) {
 				System.out.println("Program terminated.");
@@ -54,7 +59,7 @@ public class AnalyzerAssignment1 {
 		
 		}
 		else {
-			System.out.println("There are no pathname and java type input on the command line arguments.");
+			System.out.println("There are no pathname or java type input on the command line arguments. Retry again.");
 		}
 	}
 	
@@ -64,8 +69,11 @@ public class AnalyzerAssignment1 {
 	 * @return - the array of contents of the directory
 	 */
 	public static File[] accessContentsOfADirectory(String pathname) {
+		final String extension = ".java";
 		File directory = new File(pathname);
-		File[] contentsOfDirectory = directory.listFiles();
+		//Only get the files that have a .java extension
+		File[] contentsOfDirectory = directory.listFiles((File path) -> path.getName().endsWith(extension));
+
 		//check if the Directory exists
 		if (directory.canRead()) {
 			//print the directory contents to the console for checking
@@ -77,8 +85,6 @@ public class AnalyzerAssignment1 {
 					System.out.format("Directory name: %s%n", object.getName());
 				}
 			}
-			
-			
 			
 		} else {
 			//Otherwise terminate the program and tell the user.
