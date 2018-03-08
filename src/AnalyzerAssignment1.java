@@ -32,7 +32,7 @@ import java.io.*;
 
 public class AnalyzerAssignment1 {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		
 		//Check if the command line arguments include a pathname and java type
 		if (args.length > 1) {
@@ -64,11 +64,12 @@ public class AnalyzerAssignment1 {
 	}
 	
 	/**
-	 * This opens and gets the contents of the directory specified
+	 * This opens and gets the contents of the directory that has .java extension
 	 * @param pathname - the pathname of the directory
-	 * @return - the array of contents of the directory
+	 * @return - the array of .java file extension located inside the directory
+	 * @throws IOException - throws IOException if the filePath doesn't exist
 	 */
-	public static File[] accessContentsOfADirectory(String pathname) {
+	public static File[] accessContentsOfADirectory(String pathname) throws IOException {
 		final String extension = ".java";
 		File directory = new File(pathname);
 		//Only get the files that have a .java extension
@@ -76,13 +77,15 @@ public class AnalyzerAssignment1 {
 
 		//check if the Directory exists
 		if (directory.canRead()) {
-			//print the directory contents to the console for checking
+			String filePath = null;
 			for (File object : contentsOfDirectory) {
+				filePath = object.getAbsolutePath();
 				if (object.isFile()) {
+					//print the directory contents to the console for checking
 					System.out.format("File name: %s%n", object.getName());
-				}
-				else if (object.isDirectory()) {
-					System.out.format("Directory name: %s%n", object.getName());
+					//Parse for file
+					//System.out.println("The file content:\n" + readFileToString(filePath));
+					
 				}
 			}
 			
@@ -91,6 +94,30 @@ public class AnalyzerAssignment1 {
 			System.out.println("The pathname specified is not valid. Try running the code again and enter a valid one.");
 		}
 		return contentsOfDirectory;
+	}
+	
+	/**
+	 * This method read file content into a string
+	 * @param filePath - the path to the file to be read
+	 * @return - the contents of the file read as String
+	 * @throws IOException - if the file doesn't exist then this will throw an exception
+	 */
+	public static String readFileToString(String filePath) throws IOException {
+		StringBuilder fileData = new StringBuilder(1000);
+		BufferedReader reader = new BufferedReader(new FileReader(filePath));
+		
+		char[] buffer = new char[10];
+		int numRead = 0;
+		while ((numRead = reader.read(buffer)) != -1) {
+			System.out.println("numRead is: "+ numRead);
+			String readData = String.valueOf(buffer, 0, numRead);
+			fileData.append(readData);
+			buffer = new char[1024];
+		}
+		
+		reader.close();
+		
+		return fileData.toString();
 	}
 
 }
