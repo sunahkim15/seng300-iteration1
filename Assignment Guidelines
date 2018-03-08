@@ -19,7 +19,7 @@ Source Code Requirements:
 2. Takes a string to indicate a fully qualified name of a Java type
 3. Counts the number of declarations of that type within that directory
 4. Counts the number of references to each occurrence of that type within that directory
-5. The output must a string written to the console stating the name of the type, the count of delcarations, and the count of references;
+5. The output must a string written to the console stating the name of the type, the count of declarations, and the count of references;
 
 	<type>. Declarations found: <count>; references found: <count>.
 
