@@ -25,6 +25,12 @@ Source Code Requirements:
 
 where the <type> and two <count>s are to be replaced with the relevant values.
 
+Notes for creating the source code:
+1. ASTParser could be used to find class declarations.
+	In the ASTParser, a visitor can be created so that the visitor could visit nodes in the AST.
+	The nodes that can be visited by the visitor are 'Class' type declarations node in which could simplify
+	out parsing of the .java file for counting how many delcarations we have encountered.
+
 
 Automated Test Suites Requirements:
 1. Logical Test Case Selection
