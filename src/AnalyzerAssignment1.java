@@ -1,9 +1,10 @@
 /**
+ * Seng 300 Group 11 Assignment 1
  * 
  * @author Sidney Shane Dizon, Sunah Kim, Kristopher Tang
  * 
- * This is a java appplication analysis tool that will find the number of
- * occurences of the declarations of and references to a Java type (as a 
+ * This is a java application analysis tool that will find the number of
+ * occurrences of the declarations of and references to a Java type (as a 
  * fully qualified name, like java.lang.String), within a specified 
  * directory.
  *
@@ -26,11 +27,37 @@
  * values.
  */
 
+import java.io.*;
+
+
 public class AnalyzerAssignment1 {
 
 	public static void main(String[] args) {
+		//print Welcome message to console to get the input from the user
+		
+		//Get the pathname from the user
+		
+		//Get the Java type from the user
+		
+		//Open the directory specified by the user
+		
 		
 
+	}
+	
+	public static void AccessContentsOfADirectory(String pathname) {
+		File directory = new File(pathname);
+		File[] contentsOfDirectory = directory.listFiles();
+		//print the directory contents to the console for checking
+		for (File object : contentsOfDirectory) {
+			if (object.isFile()) {
+				System.out.format("File name: %s%n", object.getName());
+			}
+			else if (object.isDirectory()) {
+				System.out.format("Directory name: %s%n", object.getName());
+			}
+			
+		}
 	}
 
 }
