@@ -43,7 +43,13 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
@@ -152,7 +158,7 @@ public class AnalyzerAssignment1 {
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		
 		final CompilationUnit compUnit = (CompilationUnit) parser.createAST(null);
-		
+/*
 		compUnit.accept(new ASTVisitor() {
 			
 			// finding type of variable declared (use for finding references to java type) 
@@ -165,7 +171,7 @@ public class AnalyzerAssignment1 {
 				return false; // do not continue
 			}
 		});	
-		
+*/		
 		compUnit.accept(new ASTVisitor() {
 			// finds when class, enum, interface
 			public boolean visit(TypeDeclaration node) {
@@ -202,6 +208,54 @@ public class AnalyzerAssignment1 {
 			}
 		});
 		
+		compUnit.accept(new ASTVisitor() {
+			// finds reference of annotation type
+			public boolean visit(MarkerAnnotation node) {
+				Name name = node.getTypeName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				
+				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("----------------------------------------------");
+				return false; // do not continue
+			}
+		});
+
+		compUnit.accept(new ASTVisitor() {
+			// finds reference of annotation type
+			public boolean visit(SingleMemberAnnotation node) {
+				Name name = node.getTypeName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				
+				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("----------------------------------------------");
+				return false; // do not continue
+			}
+		});
+
+		compUnit.accept(new ASTVisitor() {
+			// finds reference of annotation type
+			public boolean visit(NormalAnnotation node) {
+				Name name = node.getTypeName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				
+				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("----------------------------------------------");
+				return false; // do not continue
+			}
+		});
+		
+		
+		compUnit.accept(new ASTVisitor() {
+			// finds reference of class: eg. A a = new A(); would be 2 references of A
+			public boolean visit(SimpleType node) {
+				Name name = node.getName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				
+				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("----------------------------------------------");
+				return false; // do not continue
+			}
+		});
 	}
 
 }
