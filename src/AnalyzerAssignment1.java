@@ -40,9 +40,12 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -161,9 +164,11 @@ public class AnalyzerAssignment1 {
 				System.out.println("----------------------------------------------");
 				return false; // do not continue
 			}
-			
-			// working on finding when class, enum, interface, and annot type declared
-			public boolean visit(AbstractTypeDeclaration node) {
+		});	
+		
+		compUnit.accept(new ASTVisitor() {
+			// finds when class, enum, interface
+			public boolean visit(TypeDeclaration node) {
 				SimpleName name = node.getName();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 				
@@ -171,8 +176,30 @@ public class AnalyzerAssignment1 {
 				System.out.println("----------------------------------------------");
 				return false; // do not continue
 			}
-			
-			
+		});
+		
+		compUnit.accept(new ASTVisitor() {
+			// finds when enum type declared
+			public boolean visit(EnumDeclaration node) {
+				SimpleName name = node.getName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				
+				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("----------------------------------------------");
+				return false; // do not continue
+			}
+		});
+		
+		compUnit.accept(new ASTVisitor() {
+			// finds when annot type declared
+			public boolean visit(AnnotationTypeDeclaration node) {
+				SimpleName name = node.getName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				
+				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("----------------------------------------------");
+				return false; // do not continue
+			}
 		});
 		
 	}
