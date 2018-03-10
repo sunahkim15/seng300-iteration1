@@ -39,9 +39,13 @@ import java.util.Set;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 
 public class AnalyzerAssignment1 {
@@ -148,17 +152,24 @@ public class AnalyzerAssignment1 {
 		
 		compUnit.accept(new ASTVisitor() {
 			
-			Set names = new HashSet();
-			
-			public boolean visit(VariableDeclarationFragment node) {
-				SimpleName name = node.getName();
+			public boolean visit(VariableDeclarationStatement node) {
+				Type name = node.getType();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
-				this.names.add(name.getIdentifier());
 				
 				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
 				System.out.println("----------------------------------------------");
 				return false; // do not continue
 			}
+			
+			public boolean visit(AbstractTypeDeclaration node) {
+				SimpleName name = node.getName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				
+				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("----------------------------------------------");
+				return false; // do not continue
+			}
+			
 			
 		});
 		
