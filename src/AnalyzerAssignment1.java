@@ -152,6 +152,7 @@ public class AnalyzerAssignment1 {
 		
 		compUnit.accept(new ASTVisitor() {
 			
+			// finding type of variable declared (use for finding references to java type) 
 			public boolean visit(VariableDeclarationStatement node) {
 				Type name = node.getType();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
@@ -161,6 +162,7 @@ public class AnalyzerAssignment1 {
 				return false; // do not continue
 			}
 			
+			// working on finding when class, enum, interface, and annot type declared
 			public boolean visit(AbstractTypeDeclaration node) {
 				SimpleName name = node.getName();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
