@@ -43,6 +43,8 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -156,27 +158,33 @@ public class AnalyzerAssignment1 {
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setSource(fileContent.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setResolveBindings(true);
+		parser.setBindingsRecovery(true);
 		
 		final CompilationUnit compUnit = (CompilationUnit) parser.createAST(null);
-/*
+		
 		compUnit.accept(new ASTVisitor() {
 			
 			// finding type of variable declared (use for finding references to java type) 
 			public boolean visit(VariableDeclarationStatement node) {
 				Type name = node.getType();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				// trying to use bindings to get qualified name but get error
+				ITypeBinding binding = name.resolveBinding(); 
+				String qualifiedName = binding.getQualifiedName();
 				
-				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("Declaration of '" + qualifiedName + "' at Line " + lineNumber);
 				System.out.println("----------------------------------------------");
 				return false; // do not continue
 			}
 		});	
-*/		
+				
 		compUnit.accept(new ASTVisitor() {
 			// finds when class, enum, interface
 			public boolean visit(TypeDeclaration node) {
 				SimpleName name = node.getName();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+			
 				
 				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
 				System.out.println("----------------------------------------------");
@@ -200,6 +208,7 @@ public class AnalyzerAssignment1 {
 			// finds when annot type declared
 			public boolean visit(AnnotationTypeDeclaration node) {
 				SimpleName name = node.getName();
+				IBinding binding = name.resolveBinding();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 				
 				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
