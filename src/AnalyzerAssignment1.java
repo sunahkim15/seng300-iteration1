@@ -64,6 +64,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 
 public class AnalyzerAssignment1 {
+	static int referenceCount = 0;
+	static int declarationCount = 0;
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 		
@@ -73,7 +75,11 @@ public class AnalyzerAssignment1 {
 			String pathname = args[0];
 			//Get the Java type from the user
 			String javaType = args[1];
-		
+			
+			//Count the number oof declarations and references
+			int declarationCount = 0;
+			int referenceCount = 0;
+			
 			//print for checking
 			System.out.println("The pathname is: " + pathname);
 			System.out.println("The Java type is " + javaType);
@@ -86,9 +92,23 @@ public class AnalyzerAssignment1 {
 			if (directoryContents == null) {
 				System.out.println("Program terminated.");
 				System.exit(0);
+			} //iterate on the contents of the directory
+			else {
+				String filePath = null;
+				// list for sourcepathEntries for setEnvironment()
+				String[] sourcePath = {pathname};
+				for (File object : directoryContents) {
+					filePath = object.getAbsolutePath();
+					if (object.isFile()) {
+						//Parse for the contents of the file
+						//System.out.println("The file content:\n" + readFileToString(filePath));
+						parse(readFileToString(filePath), sourcePath, object.getName(), javaType);
+					}
+				}
+				
+				System.out.println("The final result is:");
+				System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 			}
-			
-		
 		
 		}
 		else {
@@ -105,40 +125,19 @@ public class AnalyzerAssignment1 {
 	public static File[] accessContentsOfADirectory(String pathname) throws IOException {
 		final String extension = ".java";
 		File directory = new File(pathname);
-		//Only get the files that have a .java extension
-		File[] contentsOfDirectory = directory.listFiles((File path) -> path.getName().endsWith(extension));
-		// list for sourcepathEntries for setEnvironment()
-		String[] sourcePath = {pathname};
-		
+		File[] contentsOfDirectory = null;
+
 		//check if the Directory exists
 		if (directory.canRead()) {
-			String filePath = null;
-			//int i = 0;
-			for (File object : contentsOfDirectory) {
-				filePath = object.getAbsolutePath();
-				if (object.isFile()) {
-					//print the directory contents to the console for checking
-					System.out.format("File name: %s%n", object.getName());
-					//Parse for file
-					//System.out.println("The file content:\n" + readFileToString(filePath));
-					
-					
-					//add filePath to sourcePaths
-					//sourcePaths[i] = filePath;
-					//i++;
-					
-					parse(readFileToString(filePath), sourcePath, object.getName());
-					//readFileToString(filePath);
-				
-				}
-			}
-			
+			//Only get the files that have a .java extension
+			contentsOfDirectory = directory.listFiles((File path) -> path.getName().endsWith(extension));	
 		} else {
 			//Otherwise terminate the program and tell the user.
 			System.out.println("The pathname specified is not valid. Try running the code again and enter a valid one.");
 		}
 		return contentsOfDirectory;
 	}
+	
 	
 	/**
 	 * This method read file content into a string
@@ -153,22 +152,25 @@ public class AnalyzerAssignment1 {
 		char[] buffer = new char[10];
 		int numRead = 0;
 		while ((numRead = reader.read(buffer)) != -1) {
-			System.out.println("numRead is: "+ numRead);
 			String readData = String.valueOf(buffer, 0, numRead);
 			fileData.append(readData);
 			buffer = new char[1024];
 		}
 		
 		reader.close();
-		
 		return fileData.toString();
 	}
 	
-	/**
-	 * This method parses the contents of the .java file for declarations
-	 * @param fileContent - content of the .java file as String
-	 */
-	public static void parse(String fileContent, String[] sourcePath, String fileName) {
+	
+	 /**
+	  *  This method parses the contents of the .java file for declarations
+	  * @param fileContent - contents of the .java as String
+	  * @param sourcePath - sourcePath to be used for setting environment
+	  * @param fileName - name of the .java file
+	  * @param javaType - java Type to look for 
+	  */
+	public static void parse(String fileContent, String[] sourcePath, String fileName, String javaType) {
+		
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setSource(fileContent.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -185,119 +187,117 @@ public class AnalyzerAssignment1 {
 		 parser.setCompilerOptions(options);
 		
 		final CompilationUnit compUnit = (CompilationUnit) parser.createAST(null);
-		
+		// for visiting nodes
 		compUnit.accept(new ASTVisitor() {
 			
 			// finding type of variable declared (use for finding references to java type) 
 			public boolean visit(VariableDeclarationStatement node) {
 				Type name = node.getType();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
-				// trying to use bindings to get qualified name but get error
+				
+				// trying to use bindings to get qualified name
 				ITypeBinding bind = name.resolveBinding(); 
 				String qualifiedName = bind.getQualifiedName();
+				//System.out.println("The qualified name is: " + qualifiedName);
 				
-				for (Iterator iter = node.fragments().iterator(); iter.hasNext();) {
-					System.out.println("------------------");
-		 
-					VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
-					IVariableBinding binding = fragment.resolveBinding();
-		 
-					System.out.println("binding variable declaration: " +binding.getVariableDeclaration());
-					System.out.println("binding: " +binding);
+				//check for the specified javaType
+				if (javaType.equalsIgnoreCase(qualifiedName)) {
+					referenceCount++;
+					System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 				}
-				
-				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
-				System.out.println("----------------------------------------------");
-				return false; // do not continue
+				System.out.println("Reference of primtive type '" + name.toString() + "' at Line " + lineNumber);
+				return true;
 			}
-		});	
-				
-		compUnit.accept(new ASTVisitor() {
-			// finds when class, enum, interface
+			
+			// finds when class or interface
 			public boolean visit(TypeDeclaration node) {
+				
 				SimpleName name = node.getName();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
-			
 				
-				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
-				System.out.println("----------------------------------------------");
-				return false; // do not continue
+				//bindings to get the qualified name
+				ITypeBinding bind = node.resolveBinding();
+				if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
+					declarationCount++;
+					System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
+				}
+				System.out.println("Declaration of Class type '" + name.toString() + "' at Line " + lineNumber);
+				return true;
 			}
-		});
-		
-		compUnit.accept(new ASTVisitor() {
 			// finds when enum type declared
 			public boolean visit(EnumDeclaration node) {
 				SimpleName name = node.getName();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 				
-				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
-				System.out.println("----------------------------------------------");
-				return false; // do not continue
+				//bindings to get the qualified name
+				ITypeBinding bind = node.resolveBinding();
+				if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
+					declarationCount++;
+					System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
+				}
+				System.out.println("Reference of enum Type '" + name.toString() + "' at Line " + lineNumber);
+				return true;
 			}
-		});
-		
-		compUnit.accept(new ASTVisitor() {
-			// finds when annot type declared
+			
+			// finds when annotation type declared
 			public boolean visit(AnnotationTypeDeclaration node) {
 				SimpleName name = node.getName();
 				IBinding binding = name.resolveBinding();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 				
-				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
-				System.out.println("----------------------------------------------");
-				return false; // do not continue
+				declarationCount++;
+				System.out.println("Reference of Annotation Type '" + name.toString() + "' at Line " + lineNumber);
+				
+				return true;
 			}
-		});
-		
-		compUnit.accept(new ASTVisitor() {
+			
 			// finds reference of annotation type
 			public boolean visit(MarkerAnnotation node) {
 				Name name = node.getTypeName();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 				
-				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("Reference of '" + name.toString() + "' at Line " + lineNumber);
 				System.out.println("----------------------------------------------");
-				return false; // do not continue
+				return true;
 			}
-		});
-
-		compUnit.accept(new ASTVisitor() {
-			// finds reference of annotation type
-			public boolean visit(SingleMemberAnnotation node) {
-				Name name = node.getTypeName();
-				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
-				
-				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
-				System.out.println("----------------------------------------------");
-				return false; // do not continue
-			}
-		});
-
-		compUnit.accept(new ASTVisitor() {
-			// finds reference of annotation type
-			public boolean visit(NormalAnnotation node) {
-				Name name = node.getTypeName();
-				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
-				
-				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
-				System.out.println("----------------------------------------------");
-				return false; // do not continue
-			}
-		});
-		
-		
-		compUnit.accept(new ASTVisitor() {
+			
 			// finds reference of class: eg. A a = new A(); would be 2 references of A
 			public boolean visit(SimpleType node) {
 				Name name = node.getName();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 				
-				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
+				//bindings to get the qualified name
+				ITypeBinding bind = node.resolveBinding();
+				if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
+					referenceCount++;
+					System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
+				}
+				
+				System.out.println("Reference of Simple Type '" + name.toString() + "' at Line " + lineNumber);
 				System.out.println("----------------------------------------------");
-				return false; // do not continue
+				return true; 
 			}
-		});
+			
+			// finds reference of annotation type
+			public boolean visit(SingleMemberAnnotation node) {
+				Name name = node.getTypeName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				
+				System.out.println("Reference of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("----------------------------------------------");
+				return true;
+			}
+		
+			// finds reference of annotation type
+			public boolean visit(NormalAnnotation node) {
+				Name name = node.getTypeName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+				
+				System.out.println("Reference of '" + name.toString() + "' at Line " + lineNumber);
+				System.out.println("----------------------------------------------");
+				return true;
+			}
+		});	
+		
 	}
-
 }
