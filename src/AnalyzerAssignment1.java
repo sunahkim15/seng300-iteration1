@@ -319,11 +319,6 @@ public class AnalyzerAssignment1 {
 				return true;
 			}
 			
-			//
-			public boolean visit(AnnotationTypeMemberDeclaration node) {
-				
-				return true;
-			}
 		});	
 		
 	}
