@@ -34,8 +34,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
- 
+
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -45,6 +48,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -103,10 +107,13 @@ public class AnalyzerAssignment1 {
 		File directory = new File(pathname);
 		//Only get the files that have a .java extension
 		File[] contentsOfDirectory = directory.listFiles((File path) -> path.getName().endsWith(extension));
-
+		// list for sourcepathEntries for setEnvironment()
+		String[] sourcePath = {pathname};
+		
 		//check if the Directory exists
 		if (directory.canRead()) {
 			String filePath = null;
+			//int i = 0;
 			for (File object : contentsOfDirectory) {
 				filePath = object.getAbsolutePath();
 				if (object.isFile()) {
@@ -114,8 +121,15 @@ public class AnalyzerAssignment1 {
 					System.out.format("File name: %s%n", object.getName());
 					//Parse for file
 					//System.out.println("The file content:\n" + readFileToString(filePath));
-					parse(readFileToString(filePath));
+					
+					
+					//add filePath to sourcePaths
+					//sourcePaths[i] = filePath;
+					//i++;
+					
+					parse(readFileToString(filePath), sourcePath, object.getName());
 					//readFileToString(filePath);
+				
 				}
 			}
 			
@@ -154,12 +168,21 @@ public class AnalyzerAssignment1 {
 	 * This method parses the contents of the .java file for declarations
 	 * @param fileContent - content of the .java file as String
 	 */
-	public static void parse(String fileContent) {
+	public static void parse(String fileContent, String[] sourcePath, String fileName) {
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setSource(fileContent.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setResolveBindings(true);
 		parser.setBindingsRecovery(true);
+		
+		String unitName = fileName;
+		parser.setUnitName(unitName);
+		
+		parser.setEnvironment(null, sourcePath, null, false);
+		
+		 Map options = JavaCore.getOptions();
+		 JavaCore.setComplianceOptions(JavaCore.VERSION_1_5, options);
+		 parser.setCompilerOptions(options);
 		
 		final CompilationUnit compUnit = (CompilationUnit) parser.createAST(null);
 		
@@ -170,10 +193,20 @@ public class AnalyzerAssignment1 {
 				Type name = node.getType();
 				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 				// trying to use bindings to get qualified name but get error
-				ITypeBinding binding = name.resolveBinding(); 
-				String qualifiedName = binding.getQualifiedName();
+				ITypeBinding bind = name.resolveBinding(); 
+				String qualifiedName = bind.getQualifiedName();
 				
-				System.out.println("Declaration of '" + qualifiedName + "' at Line " + lineNumber);
+				for (Iterator iter = node.fragments().iterator(); iter.hasNext();) {
+					System.out.println("------------------");
+		 
+					VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
+					IVariableBinding binding = fragment.resolveBinding();
+		 
+					System.out.println("binding variable declaration: " +binding.getVariableDeclaration());
+					System.out.println("binding: " +binding);
+				}
+				
+				System.out.println("Declaration of '" + name.toString() + "' at Line " + lineNumber);
 				System.out.println("----------------------------------------------");
 				return false; // do not continue
 			}
