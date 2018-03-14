@@ -321,5 +321,27 @@ public class AnalyzerAssignment1 {
 			
 		});	
 		
+		if (referenceCount == 0 && declarationCount == 0) {
+			
+			compUnit.accept(new ASTVisitor() {
+				
+		
+				public boolean visit(VariableDeclarationStatement node) {
+					Type nodeType = node.getType();
+				
+					//binding issues, gets a NullPointerException
+					ITypeBinding bind = nodeType.resolveBinding();
+					if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
+						referenceCount++;
+						//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
+					}
+					
+					
+					//System.out.println("Reference of '" + name.toString() + "' at Line " + lineNumber);
+					return true;
+				}
+			});
+		}
+		
 	}
 }
