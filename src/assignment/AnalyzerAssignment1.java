@@ -259,7 +259,7 @@ public class AnalyzerAssignment1 {
 				
 				if (name.toString().equalsIgnoreCase(javaType)) {
 					referenceCount++;
-					System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
+					//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 				}
 				
 				//System.out.println("Reference of '" + name.toString() + "' at Line " + lineNumber);
@@ -297,7 +297,7 @@ public class AnalyzerAssignment1 {
 				
 				if (name.toString().equalsIgnoreCase(javaType)) {
 					referenceCount++;
-					System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
+					//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 				}
 				
 				//System.out.println("Reference of '" + name.toString() + "' at Line " + lineNumber);
@@ -321,29 +321,29 @@ public class AnalyzerAssignment1 {
 				return true;
 			}
 			
-		});	
-		
-		if (referenceCount == 0 && declarationCount == 0) {
+			public boolean visit(VariableDeclarationFragment node) {
+				SimpleName name = node.getName();
+				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 			
-			compUnit.accept(new ASTVisitor() {
-				
-		
-				public boolean visit(VariableDeclarationStatement node) {
-					Type nodeType = node.getType();
-				
-					//binding issues, gets a NullPointerException
-					ITypeBinding bind = nodeType.resolveBinding();
-					if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
+				//binding to get qualified name
+				ITypeBinding bind = name.resolveTypeBinding();
+				String qualifiedName = bind.getQualifiedName();
+				//System.out.println("Qualified name is: " + bind.getQualifiedName());
+				//check if it is a primitive type
+				if (qualifiedName.equalsIgnoreCase("int") || qualifiedName.equalsIgnoreCase("short") || qualifiedName.equalsIgnoreCase("byte") || 
+						qualifiedName.equalsIgnoreCase("boolean") || qualifiedName.equalsIgnoreCase("long") || qualifiedName.equalsIgnoreCase("char") || 
+						qualifiedName.equalsIgnoreCase("float") || qualifiedName.equalsIgnoreCase("double")) {
+					if (qualifiedName.equalsIgnoreCase(javaType)) {
 						referenceCount++;
 						//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 					}
-					
-					
-					//System.out.println("Reference of '" + name.toString() + "' at Line " + lineNumber);
-					return true;
 				}
-			});
-		}
+				
+				//System.out.println("Reference of '" + bind.getQualifiedName() + "' at Line " + lineNumber);
+				return true;
+			}
+			
+		});	
 		
 	}
 }
