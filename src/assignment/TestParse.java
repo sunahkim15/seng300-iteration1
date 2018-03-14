@@ -14,7 +14,7 @@ public class TestParse {
 	private static String BASEDIR = "C:\\Users\\esthe\\Desktop\\test300assign"; 
 	String[] sourcePath = {BASEDIR};
 	
-	File file = new File(BASEDIR + "\\dummy.java");
+	File file = new File(BASEDIR + File.separator + "dummy.java");
 	
 	
 	@Before
