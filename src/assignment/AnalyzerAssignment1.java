@@ -1,3 +1,5 @@
+package assignment;
+
 /**
  * Seng 300 Group 11 Assignment 1
  * 
@@ -81,17 +83,11 @@ public class AnalyzerAssignment1 {
 			int declarationCount = 0;
 			int referenceCount = 0;
 			
-			//print for checking
-			System.out.println("The pathname is: " + pathname);
-			System.out.println("The Java type is " + javaType);
-			
 			//Open the directory specified by the user and get contents
 			File[] directoryContents = accessContentsOfADirectory(pathname);
-			//System.out.println("Content:\n" + directoryContents);
 			
 			//Check if we have a valid directory; if we have null then terminate the program
 			if (directoryContents == null) {
-				System.out.println("Program terminated.");
 				System.exit(0);
 			} //iterate on the contents of the directory
 			else {
@@ -102,7 +98,6 @@ public class AnalyzerAssignment1 {
 					filePath = object.getAbsolutePath();
 					if (object.isFile()) {
 						//Parse for the contents of the file
-						//System.out.println("The file content:\n" + readFileToString(filePath));
 						parse(readFileToString(filePath), sourcePath, object.getName(), javaType);
 					}
 				}
@@ -193,40 +188,31 @@ public class AnalyzerAssignment1 {
 			
 			// finds when class or interface
 			public boolean visit(TypeDeclaration node) {
-				//get info for checking
 				SimpleName name = node.getName();
-				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 				
 				//bindings to get the qualified name
 				ITypeBinding bind = node.resolveBinding();
 				if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
 					declarationCount++;
-					//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 				}
-				//System.out.println("Declaration of Class type '" + name.toString() + "' at Line " + lineNumber);
 				return true;
 			}
 			// finds when enum type declared
 			public boolean visit(EnumDeclaration node) {
 				SimpleName name = node.getName();
-				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 				
 				//bindings to get the qualified name
 				ITypeBinding bind = node.resolveBinding();
 				if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
 					declarationCount++;
-					//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 				}
-				//System.out.println("Declaration of enum Type '" + name.toString() + "' at Line " + lineNumber);
 				return true;
 			}
 			
 			// finds when annotation type declared
 			public boolean visit(AnnotationTypeDeclaration node) {
-				//info for checking
 				SimpleName name = node.getName();
-				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
-				
+			
 				//binding issues, gets a NullPointerException
 				/*ITypeBinding bind = node.resolveTypeBinding();
 				if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
@@ -236,18 +222,14 @@ public class AnalyzerAssignment1 {
 				
 				if (name.toString().equalsIgnoreCase(javaType)) {
 					declarationCount++;
-					//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 				}
-				
-				//System.out.println("Declaration of Annotation Type '" + name.toString() + "' at Line " + lineNumber);
-				
 				return true;
 			}
 			
 			// finds reference of annotation type
 			public boolean visit(MarkerAnnotation node) {
 				Name name = node.getTypeName();
-				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
+	
 				//binding issues, gets a NullPointerException
 				/*ITypeBinding bind = node.resolveTypeBinding();
 				if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
@@ -257,35 +239,27 @@ public class AnalyzerAssignment1 {
 				
 				if (name.toString().equalsIgnoreCase(javaType)) {
 					referenceCount++;
-					//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 				}
-				
-				//System.out.println("Reference of '" + name.toString() + "' at Line " + lineNumber);
 				return true;
 			}
 			
 			// finds reference of class: eg. A a = new A(); would be 2 references of A
 			public boolean visit(SimpleType node) {
-				//info for checking
 				Name name = node.getName();
-				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
-				
+			
 				//bindings to get the qualified name
 				ITypeBinding bind = node.resolveBinding();
 				if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
 					referenceCount++;
 					System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 				}
-				
-				//System.out.println("Reference of Simple Type '" + name.toString() + "' at Line " + lineNumber);
 				return true; 
 			}
 			
 			// finds reference of annotation type
 			public boolean visit(SingleMemberAnnotation node) {
 				Name name = node.getTypeName();
-				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
-				
+
 				//binding issues, gets a NullPointerException
 				/*ITypeBinding bind = node.resolveTypeBinding();
 				if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
@@ -295,49 +269,37 @@ public class AnalyzerAssignment1 {
 				
 				if (name.toString().equalsIgnoreCase(javaType)) {
 					referenceCount++;
-					//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 				}
-				
-				//System.out.println("Reference of '" + name.toString() + "' at Line " + lineNumber);
 				return true;
 			}
 		
 			// finds reference of annotation type
 			public boolean visit(NormalAnnotation node) {
 				Name name = node.getTypeName();
-				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
 				
 				//binding issues, gets a NullPointerException
 				ITypeBinding bind = node.resolveTypeBinding();
 				if (bind.getQualifiedName().equalsIgnoreCase(javaType)) {
 					referenceCount++;
-					//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 				}
-				
-				
-				//System.out.println("Reference of '" + name.toString() + "' at Line " + lineNumber);
 				return true;
 			}
 			
 			public boolean visit(VariableDeclarationFragment node) {
 				SimpleName name = node.getName();
-				int lineNumber = compUnit.getLineNumber(name.getStartPosition());
-			
+	
 				//binding to get qualified name
 				ITypeBinding bind = name.resolveTypeBinding();
 				String qualifiedName = bind.getQualifiedName();
-				//System.out.println("Qualified name is: " + bind.getQualifiedName());
 				//check if it is a primitive type
 				if (qualifiedName.equalsIgnoreCase("int") || qualifiedName.equalsIgnoreCase("short") || qualifiedName.equalsIgnoreCase("byte") || 
 						qualifiedName.equalsIgnoreCase("boolean") || qualifiedName.equalsIgnoreCase("long") || qualifiedName.equalsIgnoreCase("char") || 
 						qualifiedName.equalsIgnoreCase("float") || qualifiedName.equalsIgnoreCase("double")) {
 					if (qualifiedName.equalsIgnoreCase(javaType)) {
 						referenceCount++;
-						//System.out.println(javaType + " Declaration: " + declarationCount + " Reference: " + referenceCount);
 					}
 				}
 				
-				//System.out.println("Reference of '" + bind.getQualifiedName() + "' at Line " + lineNumber);
 				return true;
 			}
 			
