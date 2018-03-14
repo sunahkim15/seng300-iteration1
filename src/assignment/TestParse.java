@@ -26,7 +26,7 @@ public class TestParse {
 
 	@Test
 	public void test() throws FileNotFoundException, IOException {
-		String filecontent = AnalyzerAssignment1.readFileToString(BASEDIR + "\\dummy.java");
+		String filecontent = AnalyzerAssignment1.readFileToString(BASEDIR + File.separator + "dummy.java");
 		AnalyzerAssignment1.parse(filecontent, sourcePath, "dummy.java", "int");
 	}
 
