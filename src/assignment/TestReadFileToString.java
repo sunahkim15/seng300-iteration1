@@ -2,6 +2,7 @@ package assignment;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -23,7 +24,9 @@ public class TestReadFileToString {
 	
 	@Test
 	public void testValidFilePath() throws FileNotFoundException, IOException {
-		String fileContent = AnalyzerAssignment1.readFileToString("");
+		File[] contents = AnalyzerAssignment1.accessContentsOfADirectory(BASEDIR);
+		String filePath = contents[0].getAbsolutePath();
+		String fileContent = AnalyzerAssignment1.readFileToString(filePath);
 		assertNotNull(fileContent);
 	}
 }
