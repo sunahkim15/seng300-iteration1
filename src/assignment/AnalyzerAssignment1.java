@@ -1,3 +1,5 @@
+package assignment;
+
 /**
  * Seng 300 Group 11 Assignment 1
  * 
